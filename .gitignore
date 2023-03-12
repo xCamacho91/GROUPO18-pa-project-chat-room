@@ -3,7 +3,9 @@
 
 ### Java ###
 # directory
-.idea/
+.idea/*
+/client/target/
+/server/target/
 
 # Compiled class file
 *.class
