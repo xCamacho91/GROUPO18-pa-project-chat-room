@@ -19,26 +19,32 @@ public class ClientThread extends Thread {
     }
 
     public void run ( ) {
-        //try {
-        int i = 0;
-        while ( true ) {
-            System.out.println ( "Sending Data" );
-            try {
-                // if(sem.tryAcquire(1, TimeUnit.SECONDS)) {
-                socket = new Socket ( "localhost" , port );
-                out = new DataOutputStream ( socket.getOutputStream ( ) );
-                in = new BufferedReader ( new InputStreamReader ( socket.getInputStream ( ) ) );
-                out.writeUTF ( "My message number " + i + " to the server " + "I'm " + id );
-                String response;
-                response = in.readLine ( );
-                System.out.println ( "From Server " + response );
-                out.flush ( );
-                socket.close ( );
-                sleep ( freq );
-                i++;
-            } catch ( IOException | InterruptedException e ) {
-                e.printStackTrace ( );
+        parseRequest ( );
+    }
+
+    private void parseRequest() {
+        Thread t = new Thread( ()-> {
+            int i = 0;
+            while ( true ) {
+                System.out.println ( "Sending Data" );
+                try {
+                    // if(sem.tryAcquire(1, TimeUnit.SECONDS)) {
+                    socket = new Socket ( "localhost" , port );
+                    out = new DataOutputStream ( socket.getOutputStream ( ) );
+                    in = new BufferedReader ( new InputStreamReader ( socket.getInputStream ( ) ) );
+                    out.writeUTF ( "My message number " + i + " to the server " + "I'm " + id );
+                    String response;
+                    response = in.readLine ( );
+                    System.out.println ( "From Server " + response );
+                    out.flush ( );
+                    socket.close ( );
+                    sleep ( freq );
+                    i++;
+                } catch ( IOException | InterruptedException e ) {
+                    e.printStackTrace ( );
+                }
             }
-        }
+        });
+        t.start();
     }
 }
