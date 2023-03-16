@@ -67,7 +67,7 @@ public class ServerThread extends Thread {
      * Accepts clients and creates a new thread to serve each individual client.
      */
     public void run ( ) {
-        initializeSettings("C:/Users/joaoc/source/PA/GROUPO18-pa-project-chat-room/server/server.config");
+        initializeSettings("C:/Users/user/IdeaProjects/GROUPO18-pa-project-chat-room/server/server.config");
 
         processRequests();
     }
