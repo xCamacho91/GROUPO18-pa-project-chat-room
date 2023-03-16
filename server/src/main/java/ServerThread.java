@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,11 +11,11 @@ import static java.lang.Integer.parseInt;
 
 public class ServerThread extends Thread {
     private final int port;
+    private final String serverLogFileName = "serverLog.txt";
     private DataInputStream in;
     private PrintWriter out;
     private ServerSocket server;
     private Socket socket;
-
     private static Semaphore semaphore;
 
 
@@ -37,6 +38,8 @@ public class ServerThread extends Thread {
         } catch ( IOException e ) {
             e.printStackTrace ( );
         }
+
+        createFile(serverLogFileName);
     }
 
 
@@ -96,5 +99,51 @@ public class ServerThread extends Thread {
         //t.start();
     }
 
+    /**
+     *
+     * @param timestamp - the time that the message was sent
+     * @param action - code for the action WIP TODO:change to use constants
+     * @param clientID - ID of the client that performed the action
+     * @param message - message sent by the client
+     */
+    public void serverLog(Timestamp timestamp, int action, int clientID, String message) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(timestamp).append(" - Action : ").append(action).append(" - CLIENT").append(clientID).append(" - ").append(message).append("\n");
+        writeFile(serverLogFileName,stringBuilder.toString());
+    }
 
+    /**
+     *
+     * @param fileName - name of the file that will be created
+     */
+    private static void createFile(String fileName){
+        try {
+            //create file
+            File file = new File(fileName);
+            if (file.createNewFile()) {
+                System.out.println("File created: " + file.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+        }catch (IOException e){
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param fileName - name of the file that will be used
+     * @param message - message to write
+     */
+    private void writeFile(String fileName,String message){
+        try {
+            FileWriter writer = new FileWriter(fileName,true);
+            writer.append(message);
+            writer.close();
+        }catch (IOException e){
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
 }
