@@ -10,7 +10,7 @@ import static sun.management.jmxremote.ConnectorBootstrap.PropertyNames.PORT;
 
 public class Main {
 
-    private static final int PORT = 80;
+    private static final int PORT = 5001;
     private static ArrayList<Clientt> clients = new ArrayList<>();
     private static ExecutorService pool = Executors.newFixedThreadPool(4);
     public static void main ( String[] args ) throws IOException {
@@ -18,7 +18,7 @@ public class Main {
         while (true){
             System.out.println("Espera de clientes...");
             Socket client =  listener.accept();
-            System.out.println("ccc");
+            System.out.println("Utilizador xxx entrou no chat.");
             Clientt clientThread = new Clientt(client, clients);
             clients.add(clientThread);
 

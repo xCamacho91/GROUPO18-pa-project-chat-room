@@ -30,7 +30,7 @@ public class Clientt implements  Runnable{
                 if (request.contains("")){ //antes tava say e tinha de escrever say antes de falar
                     int firstSpace = request.indexOf(" ");
                     if (firstSpace != -1){
-                        outToAll(request.substring(firstSpace+1));
+                        outToAll(request.substring(firstSpace+0)); //antes tava 1
                     }
                 }
                 else{
