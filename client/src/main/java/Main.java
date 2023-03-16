@@ -8,7 +8,7 @@ import java.nio.Buffer;
 public class Main {
 
     private static final  String IP = "127.0.0.1";
-    private static final int PORT = 5001;
+    private static final int PORT = 1999;
 
     public static void main ( String[] args ) throws IOException {
         Socket socket = new Socket(IP,PORT);

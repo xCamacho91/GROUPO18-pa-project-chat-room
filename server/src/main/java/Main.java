@@ -10,7 +10,7 @@ import static sun.management.jmxremote.ConnectorBootstrap.PropertyNames.PORT;
 
 public class Main {
 
-    private static final int PORT = 5001;
+    private static final int PORT = 1999;
     private static ArrayList<Clientt> clients = new ArrayList<>();
     private static ExecutorService pool = Executors.newFixedThreadPool(4);
     public static void main ( String[] args ) throws IOException {
@@ -23,7 +23,6 @@ public class Main {
             clients.add(clientThread);
 
             pool.execute(clientThread);
-
 
         }
 

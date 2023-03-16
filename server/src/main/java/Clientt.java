@@ -28,7 +28,7 @@ public class Clientt implements  Runnable{
             while (true){
                 String request = in.readLine();
                 if (request.contains("")){ //antes tava say e tinha de escrever say antes de falar
-                    int firstSpace = request.indexOf(" ");
+                    int firstSpace = request.indexOf(""); //antes tinha espaco
                     if (firstSpace != -1){
                         outToAll(request.substring(firstSpace+0)); //antes tava 1
                     }
@@ -36,6 +36,7 @@ public class Clientt implements  Runnable{
                 else{
                     out.println("cena dos filtros...");
                 }
+                System.out.println("Nome utilizador: " + request);
             }
 
         }  catch (IOException e) {
