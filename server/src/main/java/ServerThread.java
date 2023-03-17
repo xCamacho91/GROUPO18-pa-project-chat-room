@@ -150,6 +150,12 @@ public class ServerThread extends Thread {
         }
     }
 
+    
+    /** 
+     * @param FileProfanity  - name of the file with the words to filter
+     * @param message - unfilterd message 
+     * @return filtered message
+     */
     public String filter (String FileProfanity,String message){
         File profanity = new File ( FileProfanity );
         try{

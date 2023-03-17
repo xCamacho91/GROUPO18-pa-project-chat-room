@@ -27,8 +27,8 @@ public class ServerTest {
             e.printStackTrace();
         }
         
-        String filterMessage = server.filter("profanity_words.txt","youre a dumbass");
-        assertEquals("youre a dumb***",filterMessage);
+        String filterMessage = server.filter("..\\profanity_words.txt","youre a dumbass");
+        assertEquals("youre a dumb****",filterMessage);
 
     }
 
