@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Test;
-
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.DirectoryStream.Filter;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Scanner;
@@ -26,5 +26,10 @@ public class ServerTest {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+        
+        String filterMessage = server.filter("profanity_words.txt","youre a dumbass");
+        assertEquals("youre a dumb***",filterMessage);
+
     }
+
 }

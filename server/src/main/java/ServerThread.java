@@ -2,7 +2,9 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -17,6 +19,7 @@ public class ServerThread extends Thread {
     private ServerSocket server;
     private Socket socket;
     private static Semaphore semaphore;
+    private static ArrayList<String> Filter_Words = new ArrayList<String>();
 
 
     /**
@@ -70,7 +73,7 @@ public class ServerThread extends Thread {
      * Accepts clients and creates a new thread to serve each individual client.
      */
     public void run ( ) {
-        initializeSettings("C:/Users/joaoc/source/PA/GROUPO18-pa-project-chat-room/server/server.config");
+        initializeSettings("server\\server.config");
 
         processRequests();
     }
@@ -89,7 +92,7 @@ public class ServerThread extends Thread {
                     System.out.println ( "***** " + message + " *****" );
                     // escrita para o ficheiro de log das mensagens
 
-                    out.println ( message.toUpperCase ( ) );
+                    out.println ( filter("profanity_words.txt", message) );
 
                 } catch ( IOException e ) {
                     e.printStackTrace ( );
@@ -146,4 +149,24 @@ public class ServerThread extends Thread {
             e.printStackTrace();
         }
     }
+
+    public String filter (String FileProfanity,String message){
+        File profanity = new File ( FileProfanity );
+        try{
+            Scanner reader_file = new Scanner(profanity);
+            while (reader_file.hasNextLine()){
+                Filter_Words.add(reader_file.nextLine());
+            }
+            reader_file.close();
+            for (String word : Filter_Words) {
+                message = message.replace(word, "****");
+
+            }
+        }catch(IOException e){
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        return message;
+    }
 }
+
