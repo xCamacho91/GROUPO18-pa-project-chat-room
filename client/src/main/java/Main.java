@@ -12,18 +12,18 @@ public class Main {
 
     public static void main ( String[] args ) throws IOException {
         Socket socket = new Socket(IP,PORT);
-        Server servercon = new Server (socket);
+        ClientThread servercon = new ClientThread (socket);
         BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
         new Thread(servercon).start();
 
         while (true){
-            System.out.println("- ");
-            String command = keyboard.readLine();
+            //System.out.println(" -> ");
+            String comando = keyboard.readLine();
 
-            if(command.equals("/sair")) break;
-            out.println(command);
+            if(comando.equals("/break")) break; //mudar aqui
+            out.println(comando);
 
         }
         socket.close();

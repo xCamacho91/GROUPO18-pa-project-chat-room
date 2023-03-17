@@ -11,21 +11,22 @@ import static sun.management.jmxremote.ConnectorBootstrap.PropertyNames.PORT;
 public class Main {
 
     private static final int PORT = 1999;
-    private static ArrayList<Clientt> clients = new ArrayList<>();
+    private static ArrayList<ServerThread> clients = new ArrayList<>();
+    private static int id;
     private static ExecutorService pool = Executors.newFixedThreadPool(4);
     public static void main ( String[] args ) throws IOException {
+
         ServerSocket listener = new ServerSocket(PORT);
+        System.out.println("Chat room abriu!!!");
         while (true){
-            System.out.println("Espera de clientes...");
+
             Socket client =  listener.accept();
-            System.out.println("Utilizador xxx entrou no chat.");
-            Clientt clientThread = new Clientt(client, clients);
+            System.out.println("Client" + id + " connected.");
+            ServerThread clientThread = new ServerThread(client, clients, id);
             clients.add(clientThread);
 
             pool.execute(clientThread);
-
+            id++;
         }
-
-
     }
 }
