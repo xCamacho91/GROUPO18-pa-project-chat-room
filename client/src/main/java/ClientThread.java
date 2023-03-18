@@ -41,7 +41,7 @@ public class ClientThread extends Thread {
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                     // if(sem.tryAcquire(1, TimeUnit.SECONDS)) {
                     socket = new Socket ( "localhost" , port );
-                    serverLog(timestamp,CONNECT,id);
+                    serverLog(timestamp,CONNECT,id,stringBuilder.toString());
                     out = new DataOutputStream ( socket.getOutputStream ( ) );
                     in = new BufferedReader ( new InputStreamReader ( socket.getInputStream ( ) ) );
                     stringBuilder.append("My message number " + i + " to the server " + "I'm " + id );
@@ -53,7 +53,7 @@ public class ClientThread extends Thread {
                     System.out.println ( "From Server " + response );
                     out.flush ( );
                     socket.close ( );
-                    serverLog(timestamp,DISCONNECT,id);
+                    serverLog(timestamp,DISCONNECT,id,stringBuilder.toString());
                     sleep ( freq );
                     i++;
                 } catch ( IOException | InterruptedException e ) {
@@ -76,19 +76,11 @@ public class ClientThread extends Thread {
         Thread t = new Thread( ()-> {
             lockWriteFile.lock();
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(timestamp).append(" - Action : ").append(action).append(" - CLIENT").append(clientID).append(" - \"").append(message).append("\"\n");
+            stringBuilder.append(timestamp).append(" - Action : ").append(action).append(" - CLIENT").append(clientID);
+            if (!message.isEmpty()) {
+                stringBuilder.append(" - \"").append(message).append("\"\n");
+            }
             writeFile(serverLogFileName, stringBuilder.toString());
-            lockWriteFile.unlock();
-        });
-        t.start();
-    }
-    //Overloading to make message optional
-    public void serverLog(Timestamp timestamp, String action, int clientID) throws InterruptedException {
-        Thread t = new Thread( ()-> {
-            lockWriteFile.lock();
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(timestamp).append(" - Action : ").append(action).append(" - CLIENT").append(clientID).append("\n");
-            writeFile(serverLogFileName,stringBuilder.toString());
             lockWriteFile.unlock();
         });
         t.start();
