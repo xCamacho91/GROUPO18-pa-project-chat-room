@@ -1,3 +1,8 @@
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.*;
 import java.net.Socket;
 import java.sql.Timestamp;
@@ -17,7 +22,12 @@ public class ClientThread extends Thread {
     private Socket socket;
     private ReentrantLock lockWriteFile;
 
-    public ClientThread ( int port , int id , int freq ) {
+    public ClientThread(Socket s) throws IOException {
+        server = s;
+        in = new BufferedReader(new InputStreamReader((server.getInputStream())));
+    }
+
+    /*public ClientThread ( int port , int id , int freq ) {
         this.port = port;
         this.id = id;
         this.freq = freq;
@@ -27,10 +37,32 @@ public class ClientThread extends Thread {
         createFile(serverLogFileName);
     }
 
+     */
+
+    @Override
     public void run ( ) {
-        parseRequest ( );
+        //parseRequest ( );
+        String RespostaServer = null;
+        try {
+            while (true) {
+                RespostaServer = in.readLine();
+
+                if (RespostaServer == null) break;
+
+                System.out.println("Client: " + RespostaServer);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
+    /*
     private void parseRequest() {
         Thread t = new Thread( ()-> {
             int i = 0;
@@ -62,7 +94,7 @@ public class ClientThread extends Thread {
             }
         });
         t.start();
-    }
+    } 
 
     /**
      *
@@ -121,6 +153,4 @@ public class ClientThread extends Thread {
             e.printStackTrace();
         }
     }
-
-
 }
