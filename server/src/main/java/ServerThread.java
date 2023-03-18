@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,7 +14,7 @@ import static java.lang.Integer.parseInt;
 public class ServerThread implements Runnable {
     //private final int port;
     private ServerSocket server;
-
+    private Socket socket;
     private static Semaphore semaphore;
     private Socket client;
     private BufferedReader in;
@@ -99,6 +100,7 @@ public class ServerThread implements Runnable {
                 }
                 System.out.println("Client" + id +": "  + request);
             }
+        initializeSettings("server/server.config");
 
         }  catch (IOException e) {
             shutdown();
@@ -129,7 +131,6 @@ public class ServerThread implements Runnable {
         //});
         //t.start();
     }
-     */
 
     private void Broadcast(String massage) { //funcao que vai mandar mensagem para todos os clients
         for (ServerThread aClient : clients ){
@@ -149,6 +150,4 @@ public class ServerThread implements Runnable {
 
         }
     }
-
-
 }
