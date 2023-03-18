@@ -34,6 +34,7 @@ public class ClientTest {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+        //:TODO erro teste
     }
 
 }
