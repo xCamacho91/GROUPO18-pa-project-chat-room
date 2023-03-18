@@ -7,7 +7,7 @@ public class ClientThread extends Thread {
     private final int port;
     private final int id;
     private final int freq;
-    private final String serverLogFileName = "serverLog.txt";
+    private final String serverLogFileName = "server/server.log";
     private final String MESSAGE = "MESSAGE";
     private final String DISCONNECT = "DISCONNECT";
     private final String CONNECT = "CONNECT";
