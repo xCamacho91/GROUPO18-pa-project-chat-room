@@ -22,9 +22,10 @@ public class ClientThread extends Thread {
     private Socket server;
     private ReentrantLock lockWriteFile;
 
-    public ClientThread(Socket s) throws IOException {
+    public ClientThread(Socket s, ReentrantLock lockWriteFile) throws IOException {
         server = s;
         in = new BufferedReader(new InputStreamReader((server.getInputStream())));
+        this.lockWriteFile = lockWriteFile;
     }
 
     /*

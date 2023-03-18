@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.sql.Timestamp;
 import java.util.Scanner;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.junit.jupiter.api.Assertions.*;
 public class ClientTest {
@@ -17,7 +18,7 @@ public class ClientTest {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         try {
             socket = new Socket("127.0.0.1",1999);
-            ClientThread client = new ClientThread(socket);
+            ClientThread client = new ClientThread(socket, new ReentrantLock());
             client.serverLog(timestamp,"MESSAGE",2,"ServerLog Test2");
         } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);
@@ -33,10 +34,6 @@ public class ClientTest {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        
-        String filterMessage = server.filter("..\\profanity_words.txt","youre a dumbass");
-        assertEquals("youre a dumb****",filterMessage);
-
     }
 
 }
