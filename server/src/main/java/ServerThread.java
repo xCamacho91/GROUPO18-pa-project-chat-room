@@ -8,18 +8,23 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
-
+import javax.swing.plaf.basic.BasicListUI;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import static java.lang.Integer.parseInt;
 
-public class ServerThread extends Thread {
-    private final int port;
-    private final String serverLogFileName = "serverLog.txt";
-    private DataInputStream in;
-    private PrintWriter out;
+public class ServerThread implements Runnable {
+    private int port;
     private ServerSocket server;
     private Socket socket;
     private static Semaphore semaphore;
     private static ArrayList<String> Filter_Words = new ArrayList<String>();
+    private Socket client;
+    private BufferedReader in;
+    private PrintWriter out;
+    private boolean done;
+    private int id;
+    private ArrayList<ServerThread> clients;
 
 
     /**
@@ -41,10 +46,15 @@ public class ServerThread extends Thread {
         } catch ( IOException e ) {
             e.printStackTrace ( );
         }
-
-        createFile(serverLogFileName);
     }
 
+    public ServerThread(Socket clientSocket, ArrayList<ServerThread> clients, int id) throws IOException {
+        this.client = clientSocket;
+        this.clients = clients;
+        this.id= id;
+        in = new BufferedReader(new InputStreamReader((client.getInputStream())));
+        out = new PrintWriter(client.getOutputStream(), true);
+    }
 
     /**
      * Constructor for the thread responsible for accepting the clients.
@@ -72,12 +82,33 @@ public class ServerThread extends Thread {
      * The thread's run method.
      * Accepts clients and creates a new thread to serve each individual client.
      */
+    @Override
     public void run ( ) {
-        initializeSettings("server\\server.config");
-
-        processRequests();
+        try{
+            while (true){
+                String request = in.readLine();
+                if (request.contains("")){
+                    int firstSpace = request.indexOf("");
+                    if (request.startsWith("/sair")){
+                        shutdown();
+                        System.out.println("Client" + id +" disconnected.");
+                    }else{
+                        Broadcast(request.substring(firstSpace+0));
+                    }
+                }
+                else{
+                    out.println("...");
+                }
+                System.out.println("Client" + id +": "  + request);
+                initializeSettings("server/server.config");
+            }
+        }  catch (IOException e) {
+            shutdown();
+        }
+        //processRequests();
     }
 
+    /*
     private void processRequests() {
         //Thread t = new Thread( ()-> {
             while ( true ) {
@@ -100,53 +131,24 @@ public class ServerThread extends Thread {
             }
         //});
         //t.start();
-    }
+    }*/
 
-    /**
-     *
-     * @param timestamp - the time that the message was sent
-     * @param action - code for the action WIP TODO:change to use constants
-     * @param clientID - ID of the client that performed the action
-     * @param message - message sent by the client
-     */
-    public void serverLog(Timestamp timestamp, int action, int clientID, String message) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(timestamp).append(" - Action : ").append(action).append(" - CLIENT").append(clientID).append(" - ").append(message).append("\n");
-        writeFile(serverLogFileName,stringBuilder.toString());
-    }
-
-    /**
-     *
-     * @param fileName - name of the file that will be created
-     */
-    private static void createFile(String fileName){
-        try {
-            //create file
-            File file = new File(fileName);
-            if (file.createNewFile()) {
-                System.out.println("File created: " + file.getName());
-            } else {
-                System.out.println("File already exists.");
-            }
-        }catch (IOException e){
-            System.out.println("An error occurred.");
-            e.printStackTrace();
+    private void Broadcast(String massage) { //funcao que vai mandar mensagem para todos os clients
+        for (ServerThread aClient : clients ){
+            aClient.out.println(massage);
         }
     }
 
-    /**
-     *
-     * @param fileName - name of the file that will be used
-     * @param message - message to write
-     */
-    private void writeFile(String fileName,String message){
-        try {
-            FileWriter writer = new FileWriter(fileName,true);
-            writer.append(message);
-            writer.close();
+    public void shutdown(){
+        done =true;
+        try{
+            in.close();
+            out.close();
+            if(!client.isClosed()){
+                client.close();
+            }
         }catch (IOException e){
-            System.out.println("An error occurred.");
-            e.printStackTrace();
+
         }
     }
 
