@@ -28,11 +28,6 @@ public class ServerThread implements Runnable {
 
 
     /**
-     * The server's configuration, imported from the configuration file when the server started.
-     */
-    private static Properties serverConfig;
-
-    /**
      * The semaphore responsible for the number of requests that can be served simultaneously.
      */
     private static Semaphore numberOfConcurrentRequests;
@@ -56,27 +51,6 @@ public class ServerThread implements Runnable {
         out = new PrintWriter(client.getOutputStream(), true);
     }
 
-    /**
-     * Constructor for the thread responsible for accepting the clients.
-     *
-     * @param configPath path of the configuration file used by the HTTP server.
-     * @throws IOException if an I/O error occurs when creating the output stream or if the socket is not connected.
-     **/
-    private static void initializeSettings(String configPath) {
-        Thread t = new Thread( ()-> {
-            while (true) {
-                try {
-                    serverConfig = new Properties();
-                    InputStream configPathInputStream = new FileInputStream(configPath);
-                    serverConfig.load(configPathInputStream);
-                } catch (IOException e) {
-                    System.out.println("Settings config path not found.");
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        t.start();
-    }
 
     /**
      * The thread's run method.
@@ -100,7 +74,6 @@ public class ServerThread implements Runnable {
                     out.println("...");
                 }
                 System.out.println("Client" + id +": "  + request);
-                initializeSettings("server/server.config");
             }
         }  catch (IOException e) {
             shutdown();
