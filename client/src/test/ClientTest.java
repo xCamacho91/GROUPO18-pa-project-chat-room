@@ -2,6 +2,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.Socket;
 import java.sql.Timestamp;
 import java.util.Scanner;
 
@@ -10,11 +12,13 @@ public class ClientTest {
     @Test
     public void TestServerLog(){
         String lastLine = "";
-        ClientThread client = new ClientThread(8888,1,222);
+        Socket socket = null;
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         try {
+            socket = new Socket("127.0.0.1",1999);
+            ClientThread client = new ClientThread(socket);
             client.serverLog(timestamp,"MESSAGE",2,"ServerLog Test2");
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);
         }
         try {

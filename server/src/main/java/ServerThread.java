@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import static java.lang.Integer.parseInt;
 
 public class ServerThread implements Runnable {
-    //private final int port;
+    private int port;
     private ServerSocket server;
     private Socket socket;
     private static Semaphore semaphore;
@@ -35,7 +35,7 @@ public class ServerThread implements Runnable {
     private static Semaphore numberOfConcurrentRequests;
 
 
-    /*public ServerThread ( int port) {
+    public ServerThread ( int port) {
         this.port = port;
 
         try {
@@ -44,7 +44,7 @@ public class ServerThread implements Runnable {
             e.printStackTrace ( );
         }
     }
-    */
+
     public ServerThread(Socket clientSocket, ArrayList<ServerThread> clients, int id) throws IOException {
         this.client = clientSocket;
         this.clients = clients;
@@ -81,8 +81,6 @@ public class ServerThread implements Runnable {
      */
     @Override
     public void run ( ) {
-        initializeSettings("C:/Users/user/IdeaProjects/GROUPO18-pa-project-chat-room/server/server.config");
-
         try{
             while (true){
                 String request = in.readLine();
@@ -99,16 +97,16 @@ public class ServerThread implements Runnable {
                     out.println("...");
                 }
                 System.out.println("Client" + id +": "  + request);
+                initializeSettings("server/server.config");
             }
-        initializeSettings("server/server.config");
-
         }  catch (IOException e) {
             shutdown();
         }
         //processRequests();
     }
 
-    /*private void processRequests() {
+    /*
+    private void processRequests() {
         //Thread t = new Thread( ()-> {
             while ( true ) {
                 try {
@@ -130,7 +128,7 @@ public class ServerThread implements Runnable {
             }
         //});
         //t.start();
-    }
+    }*/
 
     private void Broadcast(String massage) { //funcao que vai mandar mensagem para todos os clients
         for (ServerThread aClient : clients ){

@@ -9,9 +9,9 @@ import java.sql.Timestamp;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientThread extends Thread {
-    private final int port;
-    private final int id;
-    private final int freq;
+    private int port;
+    private int id;
+    private int freq;
     private final String serverLogFileName = "server/server.log";
     private final String MESSAGE = "MESSAGE";
     private final String DISCONNECT = "DISCONNECT";
@@ -19,7 +19,7 @@ public class ClientThread extends Thread {
     private final String WAITING = "WAITING";
     private DataOutputStream out;
     private BufferedReader in;
-    private Socket socket;
+    private Socket server;
     private ReentrantLock lockWriteFile;
 
     public ClientThread(Socket s) throws IOException {
@@ -27,7 +27,8 @@ public class ClientThread extends Thread {
         in = new BufferedReader(new InputStreamReader((server.getInputStream())));
     }
 
-    /*public ClientThread ( int port , int id , int freq ) {
+    /*
+    public ClientThread ( int port , int id , int freq ) {
         this.port = port;
         this.id = id;
         this.freq = freq;
@@ -35,9 +36,7 @@ public class ClientThread extends Thread {
         lockWriteFile = new ReentrantLock();
 
         createFile(serverLogFileName);
-    }
-
-     */
+    }*/
 
     @Override
     public void run ( ) {
@@ -61,7 +60,6 @@ public class ClientThread extends Thread {
             }
         }
     }
-
     /*
     private void parseRequest() {
         Thread t = new Thread( ()-> {
@@ -94,7 +92,7 @@ public class ClientThread extends Thread {
             }
         });
         t.start();
-    } 
+    } */
 
     /**
      *
