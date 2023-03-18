@@ -103,9 +103,10 @@ public class ClientThread extends Thread {
      * @param message - message sent by the client
      * @throws InterruptedException
      */
-    public void serverLog(Timestamp timestamp, String action, int clientID, String message) throws InterruptedException {
+    public void serverLog(Timestamp timestamp, String action, int clientID, String message, ReentrantLock lockWriteFile) throws InterruptedException {
         Thread t = new Thread( ()-> {
             lockWriteFile.lock();
+            createFile(serverLogFileName);
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(timestamp).append(" - Action : ").append(action).append(" - CLIENT").append(clientID);
             if (!message.isEmpty()) {

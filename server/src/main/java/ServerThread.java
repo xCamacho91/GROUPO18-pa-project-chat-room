@@ -144,7 +144,7 @@ public class ServerThread implements Runnable {
 
             }
         }catch(IOException e){
-            System.out.println("An error occurred.");
+            System.out.println("Filter file not found.");
             e.printStackTrace();
         }
         return message;

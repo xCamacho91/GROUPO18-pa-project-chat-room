@@ -11,7 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import static java.lang.Integer.parseInt;
-import static sun.management.jmxremote.ConnectorBootstrap.PropertyNames.PORT;
 
 public class Main {
 
@@ -44,8 +43,8 @@ public class Main {
             serverConfig = new Properties();
             InputStream configPathInputStream = new FileInputStream("server/server.config");
             serverConfig.load(configPathInputStream);
-            PORT = parseInt(serverConfig.getProperty("server.port"), 10);
-            numberOfConcurrentRequests = new Semaphore( parseInt(serverConfig.getProperty("server.maximum.requests"), 10));
+            PORT = Integer.parseInt(serverConfig.getProperty("server.port"));
+            numberOfConcurrentRequests = new Semaphore( parseInt(serverConfig.getProperty("server.maximum.users")));
         } catch (IOException e) {
             System.out.println("Config file not found.");
             throw new RuntimeException(e);
