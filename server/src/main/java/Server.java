@@ -3,16 +3,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Integer.parseInt;
 
-public class Main {
+public class Server {
 
     /**
      * The port where the server is going to run in.
@@ -28,8 +28,18 @@ public class Main {
      * The semaphore responsible for the number of requests that can be served simultaneously.
      */
     private static Semaphore numberOfConcurrentRequests;
-    private static ArrayList<ServerThread> clients = new ArrayList<>();
-    private static int id;
+
+    /**
+     * The list of clients connected to the server.
+     */
+    private static ArrayList<ConnectionHandler> clients = new ArrayList<>();
+    /**
+     * The id of the client.
+     */
+    private static AtomicInteger id;
+    /**
+     * The thread pool.
+     */
     private static ExecutorService pool = Executors.newFixedThreadPool(4);
 
 
@@ -52,20 +62,17 @@ public class Main {
     }
 
     public static void main ( String[] args ) throws IOException {
-
         initializeSettings();
-
         ServerSocket listener = new ServerSocket(PORT);
         System.out.println("Server is now available");
         while (true){
-
             Socket client =  listener.accept();
-            System.out.println("Client" + id + " connected.");
-            ServerThread clientThread = new ServerThread(client, clients, id);
-            clients.add(clientThread);
-
-            pool.execute(clientThread);
-            id++;
+            System.out.println("Client" + id.get() + " connected.");
+            ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id.get());
+            clients.add(connectHandle);
+            pool.execute(connectHandle);
+            id.incrementAndGet();
         }
+        // TODO: 19/03/2023 separate the thread in varius classes
     }
 }

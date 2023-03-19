@@ -1,19 +1,13 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
-import javax.swing.plaf.basic.BasicListUI;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
+
 import static java.lang.Integer.parseInt;
 
-public class ServerThread implements Runnable {
+public class ConnectionHandler implements Runnable {
     private int port;
     private ServerSocket server;
     private Socket socket;
@@ -24,7 +18,7 @@ public class ServerThread implements Runnable {
     private PrintWriter out;
     private boolean done;
     private int id;
-    private ArrayList<ServerThread> clients;
+    private ArrayList<ConnectionHandler> clients;
 
 
     /**
@@ -32,8 +26,7 @@ public class ServerThread implements Runnable {
      */
     private static Semaphore numberOfConcurrentRequests;
 
-
-    public ServerThread ( int port) {
+    /*public ServerThread ( int port) {
         this.port = port;
 
         try {
@@ -41,9 +34,17 @@ public class ServerThread implements Runnable {
         } catch ( IOException e ) {
             e.printStackTrace ( );
         }
-    }
+    }*/
 
-    public ServerThread(Socket clientSocket, ArrayList<ServerThread> clients, int id) throws IOException {
+    /**
+     * Constructor for the thread responsible for handling client connections.
+     *
+     * @param clientSocket
+     * @param clients
+     * @param id
+     * @throws IOException
+     */
+    public ConnectionHandler(Socket clientSocket, ArrayList<ConnectionHandler> clients, int id) throws IOException {
         this.client = clientSocket;
         this.clients = clients;
         this.id= id;
@@ -107,7 +108,7 @@ public class ServerThread implements Runnable {
     }*/
 
     private void Broadcast(String massage) { //funcao que vai mandar mensagem para todos os clients
-        for (ServerThread aClient : clients ){
+        for (ConnectionHandler aClient : clients ){
             aClient.out.println(massage);
         }
     }
