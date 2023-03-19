@@ -36,7 +36,7 @@ public class Server {
     /**
      * The id of the client.
      */
-    private static AtomicInteger id;
+    private static int id;
     /**
      * The thread pool.
      */
@@ -61,18 +61,19 @@ public class Server {
         }
     }
 
+    //TODO make function to read the filtro.txt file and add the words to the arraylist
+
     public static void main ( String[] args ) throws IOException {
         initializeSettings();
         ServerSocket listener = new ServerSocket(PORT);
         System.out.println("Server is now available");
         while (true){
             Socket client =  listener.accept();
-            System.out.println("Client" + id.get() + " connected.");
-            ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id.get());
+            System.out.println("Client" + id + " connected.");
+            ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id);
             clients.add(connectHandle);
             pool.execute(connectHandle);
-            id.incrementAndGet();
+            id++;
         }
-        // TODO: 19/03/2023 separate the thread in varius classes
     }
 }

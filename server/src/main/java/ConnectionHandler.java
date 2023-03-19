@@ -4,14 +4,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Integer.parseInt;
 
 public class ConnectionHandler implements Runnable {
-    private int port;
-    private ServerSocket server;
-    private Socket socket;
-    private static Semaphore semaphore;
     private static ArrayList<String> Filter_Words = new ArrayList<String>();
     private Socket client;
     private BufferedReader in;
@@ -19,6 +16,10 @@ public class ConnectionHandler implements Runnable {
     private boolean done;
     private int id;
     private ArrayList<ConnectionHandler> clients;
+    /**
+     * The message received from the client.
+     */
+    private static String message;
 
 
     /**
@@ -68,7 +69,11 @@ public class ConnectionHandler implements Runnable {
                         shutdown();
                         System.out.println("Client" + id +" disconnected.");
                     }else{
-                        Broadcast(request.substring(firstSpace+0));
+                        message = request.substring(firstSpace+0);
+                        FilterMessage filterMessage = new FilterMessage(message);
+                        message = filterMessage.filter();
+
+                        Broadcast(message);
                     }
                 }
                 else{
@@ -107,9 +112,9 @@ public class ConnectionHandler implements Runnable {
         //t.start();
     }*/
 
-    private void Broadcast(String massage) { //funcao que vai mandar mensagem para todos os clients
+    private void Broadcast(String message) { //funcao que vai mandar mensagem para todos os clients
         for (ConnectionHandler aClient : clients ){
-            aClient.out.println(massage);
+            aClient.out.println(message);
         }
     }
 
@@ -124,31 +129,6 @@ public class ConnectionHandler implements Runnable {
         }catch (IOException e){
 
         }
-    }
-
-    
-    /** 
-     * @param FileProfanity  - name of the file with the words to filter
-     * @param message - unfilterd message 
-     * @return filtered message
-     */
-    public String filter (String FileProfanity,String message){
-        File profanity = new File ( FileProfanity );
-        try{
-            Scanner reader_file = new Scanner(profanity);
-            while (reader_file.hasNextLine()){
-                Filter_Words.add(reader_file.nextLine());
-            }
-            reader_file.close();
-            for (String word : Filter_Words) {
-                message = message.replace(word, "****");
-
-            }
-        }catch(IOException e){
-            System.out.println("Filter file not found.");
-            e.printStackTrace();
-        }
-        return message;
     }
 }
 
