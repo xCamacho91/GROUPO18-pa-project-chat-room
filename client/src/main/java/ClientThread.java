@@ -12,7 +12,6 @@ public class ClientThread extends Thread {
     private int port;
     private int id;
     private int freq;
-    private final String serverLogFileName = "server/server.log";
     private final String MESSAGE = "MESSAGE";
     private final String DISCONNECT = "DISCONNECT";
     private final String CONNECT = "CONNECT";
@@ -95,62 +94,5 @@ public class ClientThread extends Thread {
         t.start();
     } */
 
-    /**
-     *
-     * @param timestamp - the time that the message was sent
-     * @param action - code for the action WIP
-     * @param clientID - ID of the client that performed the action
-     * @param message - message sent by the client
-     * @throws InterruptedException
-     */
-    public void serverLog(Timestamp timestamp, String action, int clientID, String message, ReentrantLock lockWriteFile) throws InterruptedException {
-        Thread t = new Thread( ()-> {
-            lockWriteFile.lock();
-            createFile(serverLogFileName);
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(timestamp).append(" - Action : ").append(action).append(" - CLIENT").append(clientID);
-            if (!message.isEmpty()) {
-                stringBuilder.append(" - \"").append(message).append("\"\n");
-            }
-            writeFile(serverLogFileName, stringBuilder.toString());
-            lockWriteFile.unlock();
-        });
-        t.start();
-    }
 
-    /**
-     *
-     * @param fileName - name of the file that will be created
-     */
-    private static void createFile(String fileName){
-        try {
-            //create file
-            File file = new File(fileName);
-            if (file.createNewFile()) {
-                System.out.println("File created: " + file.getName());
-            } else {
-                System.out.println("File already exists.");
-            }
-        }catch (IOException e){
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     *
-     * @param fileName - name of the file that will be used
-     * @param message - message to write
-     */
-    private void writeFile(String fileName,String message){
-        try {
-            FileWriter writer = new FileWriter(fileName,true);
-            writer.append(message);
-            writer.close();
-            System.out.println(message);
-        }catch (IOException e){
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-    }
 }
