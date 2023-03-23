@@ -11,7 +11,6 @@ public class ClientTest {
 
     @Test
     public void LogClientTest() {
-
         LogClient cli = new LogClient ("MESSAGE", 1, "ServerLog Test2", new ReentrantLock());
         cli.run();
         String lastLine = "";
