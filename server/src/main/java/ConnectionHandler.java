@@ -3,6 +3,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +23,12 @@ public class ConnectionHandler implements Runnable {
      */
     private static String message;
 
+    private final ExecutorService executor;
+
+    /**
+     * list of profanity words
+     */
+    private static ArrayList<String> filterWords = new ArrayList<String>();
 
     /**
      * The semaphore responsible for the number of requests that can be served simultaneously.
@@ -45,10 +53,12 @@ public class ConnectionHandler implements Runnable {
      * @param id
      * @throws IOException
      */
-    public ConnectionHandler(Socket clientSocket, ArrayList<ConnectionHandler> clients, int id) throws IOException {
+    public ConnectionHandler(Socket clientSocket, ArrayList<ConnectionHandler> clients, int id, int numberOfConcurrentRequests, ArrayList<String> filterWords ) throws IOException {
         this.client = clientSocket;
         this.clients = clients;
         this.id= id;
+        this.filterWords = filterWords;
+        this.executor = Executors.newFixedThreadPool(numberOfConcurrentRequests);
         in = new BufferedReader(new InputStreamReader((client.getInputStream())));
         out = new PrintWriter(client.getOutputStream(), true);
     }
@@ -70,7 +80,7 @@ public class ConnectionHandler implements Runnable {
                         System.out.println("Client" + id +" disconnected.");
                     }else{
                         message = request.substring(firstSpace+0);
-                        FilterMessage filterMessage = new FilterMessage(message);
+                        FilterMessage filterMessage = new FilterMessage(filterWords, message); // TODO tocar isto por uma thread pool
                         message = filterMessage.filter();
 
                         Broadcast(message);
