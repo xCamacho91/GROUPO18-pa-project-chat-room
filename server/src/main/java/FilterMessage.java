@@ -1,13 +1,6 @@
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class FilterMessage extends Thread {
-    /**
-     * path to the file with the profanity words
-     */
-    private static final String fileProfanity = "server/filtro.txt";
     /**
      * list of profanity words
      */
@@ -20,7 +13,8 @@ public class FilterMessage extends Thread {
     /**
      * @param message - unfilterd message
      */
-    public FilterMessage(String message) {
+    public FilterMessage(ArrayList<String> filterWords, String message) {
+        this.filterWords = filterWords;
         this.message = message;
     }
 
@@ -29,19 +23,8 @@ public class FilterMessage extends Thread {
      * @return filtered message
      */
     public String filter (){
-        File profanity = new File (fileProfanity);
-        try{
-            Scanner readerFile = new Scanner(profanity);
-            while (readerFile.hasNextLine()){
-                filterWords.add(readerFile.nextLine());
-            }
-            readerFile.close();
-            for (String word : filterWords) {
-                message = message.replace(word, "****");
-            }
-        }catch(IOException e){
-            System.out.println("Filter file not found.");
-            e.printStackTrace();
+        for (String word : filterWords) {
+            message = message.replace(word, "****");
         }
         return message;
     }
