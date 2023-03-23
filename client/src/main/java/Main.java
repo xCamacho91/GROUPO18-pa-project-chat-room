@@ -13,10 +13,9 @@ public class Main {
     private final String DISCONNECT = "DISCONNECT";
     private final String CONNECT = "CONNECT";
     private final String WAITING = "WAITING";
-    private ReentrantLock lockWriteFile;
+    private static ReentrantLock lockWriteFile = new ReentrantLock();
     public static void main ( String[] args ) throws IOException {
         Socket socket = new Socket(IP,PORT);
-        ReentrantLock lockWriteFile = new ReentrantLock();
         ClientThread servercon = new ClientThread (socket, lockWriteFile);
         BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -24,17 +23,13 @@ public class Main {
         new Thread(servercon).start();
 
         while (true){
-            //System.out.println(" -> ");
             String comando = keyboard.readLine();
-
             LogClient logClient = new LogClient(MESSAGE, 1, comando.toString(), lockWriteFile);
             logClient.run();
             if(comando.equals("/break")) break; //mudar aqui
             out.println(comando);
-
         }
         socket.close();
         System.exit(0);
-
     }
 }
