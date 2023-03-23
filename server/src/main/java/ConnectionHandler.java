@@ -1,39 +1,41 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
-import javax.swing.plaf.basic.BasicListUI;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static java.lang.Integer.parseInt;
 
-public class ServerThread implements Runnable {
-    private int port;
-    private ServerSocket server;
-    private Socket socket;
-    private static Semaphore semaphore;
+public class ConnectionHandler implements Runnable {
     private static ArrayList<String> Filter_Words = new ArrayList<String>();
     private Socket client;
     private BufferedReader in;
     private PrintWriter out;
     private boolean done;
     private int id;
-    private ArrayList<ServerThread> clients;
+    private ArrayList<ConnectionHandler> clients;
+    /**
+     * The message received from the client.
+     */
+    private static String message;
 
+    private final ExecutorService executor;
+
+    /**
+     * list of profanity words
+     */
+    private static ArrayList<String> filterWords = new ArrayList<String>();
 
     /**
      * The semaphore responsible for the number of requests that can be served simultaneously.
      */
     private static Semaphore numberOfConcurrentRequests;
 
-
-    public ServerThread ( int port) {
+    /*public ServerThread ( int port) {
         this.port = port;
 
         try {
@@ -41,12 +43,22 @@ public class ServerThread implements Runnable {
         } catch ( IOException e ) {
             e.printStackTrace ( );
         }
-    }
+    }*/
 
-    public ServerThread(Socket clientSocket, ArrayList<ServerThread> clients, int id) throws IOException {
+    /**
+     * Constructor for the thread responsible for handling client connections.
+     *
+     * @param clientSocket
+     * @param clients
+     * @param id
+     * @throws IOException
+     */
+    public ConnectionHandler(Socket clientSocket, ArrayList<ConnectionHandler> clients, int id, int numberOfConcurrentRequests, ArrayList<String> filterWords ) throws IOException {
         this.client = clientSocket;
         this.clients = clients;
         this.id= id;
+        this.filterWords = filterWords;
+        this.executor = Executors.newFixedThreadPool(numberOfConcurrentRequests);
         in = new BufferedReader(new InputStreamReader((client.getInputStream())));
         out = new PrintWriter(client.getOutputStream(), true);
     }
@@ -67,7 +79,11 @@ public class ServerThread implements Runnable {
                         shutdown();
                         System.out.println("Client" + id +" disconnected.");
                     }else{
-                        Broadcast(request.substring(firstSpace+0));
+                        message = request.substring(firstSpace+0);
+                        FilterMessage filterMessage = new FilterMessage(filterWords, message); // TODO tocar isto por uma thread pool
+                        message = filterMessage.filter();
+
+                        Broadcast(message);
                     }
                 }
                 else{
@@ -106,9 +122,9 @@ public class ServerThread implements Runnable {
         //t.start();
     }*/
 
-    private void Broadcast(String massage) { //funcao que vai mandar mensagem para todos os clients
-        for (ServerThread aClient : clients ){
-            aClient.out.println(massage);
+    private void Broadcast(String message) { //funcao que vai mandar mensagem para todos os clients
+        for (ConnectionHandler aClient : clients ){
+            aClient.out.println(message);
         }
     }
 
@@ -123,31 +139,6 @@ public class ServerThread implements Runnable {
         }catch (IOException e){
 
         }
-    }
-
-    
-    /** 
-     * @param FileProfanity  - name of the file with the words to filter
-     * @param message - unfilterd message 
-     * @return filtered message
-     */
-    public String filter (String FileProfanity,String message){
-        File profanity = new File ( FileProfanity );
-        try{
-            Scanner reader_file = new Scanner(profanity);
-            while (reader_file.hasNextLine()){
-                Filter_Words.add(reader_file.nextLine());
-            }
-            reader_file.close();
-            for (String word : Filter_Words) {
-                message = message.replace(word, "****");
-
-            }
-        }catch(IOException e){
-            System.out.println("Filter file not found.");
-            e.printStackTrace();
-        }
-        return message;
     }
 }
 
