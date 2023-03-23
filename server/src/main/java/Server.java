@@ -1,16 +1,11 @@
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static java.lang.Integer.parseInt;
 
 public class Server {
 
@@ -25,9 +20,9 @@ public class Server {
     private static Properties serverConfig;
 
     /**
-     * The semaphore responsible for the number of requests that can be served simultaneously.
+     * The number of concurrent requests that the server can handle.
      */
-    private static Semaphore numberOfConcurrentRequests;
+    private static int numberOfConcurrentRequests;
 
     /**
      * The list of clients connected to the server.
@@ -42,6 +37,15 @@ public class Server {
      */
     private static ExecutorService pool = Executors.newFixedThreadPool(4);
 
+    /**
+     * path to the file with the profanity words
+     */
+    private static final String fileProfanity = "server/filtro.txt";
+
+    /**
+     * list of profanity words
+     */
+    private static ArrayList<String> filterWords = new ArrayList<String>();
 
     /**
      * Constructor for the thread responsible for accepting the clients.
@@ -54,23 +58,35 @@ public class Server {
             InputStream configPathInputStream = new FileInputStream("server/server.config");
             serverConfig.load(configPathInputStream);
             PORT = Integer.parseInt(serverConfig.getProperty("server.port"));
-            numberOfConcurrentRequests = new Semaphore( parseInt(serverConfig.getProperty("server.maximum.users")));
+            numberOfConcurrentRequests = Integer.parseInt(serverConfig.getProperty("server.maximum.users"));
         } catch (IOException e) {
             System.out.println("Config file not found.");
             throw new RuntimeException(e);
         }
     }
 
-    //TODO make function to read the filtro.txt file and add the words to the arraylist
+    /**
+     * Reads the file with the profanity words and adds them to the arraylist filterWords
+     * @throws FileNotFoundException
+     */
+    private static void readFilterFile() throws FileNotFoundException {
+        File profanity = new File (fileProfanity);
+        Scanner readerFile = new Scanner(profanity);
+        while (readerFile.hasNextLine()){
+            filterWords.add(readerFile.nextLine());
+        }
+        readerFile.close();
+    }
 
     public static void main ( String[] args ) throws IOException {
         initializeSettings();
+        readFilterFile();
         ServerSocket listener = new ServerSocket(PORT);
         System.out.println("Server is now available");
         while (true){
             Socket client =  listener.accept();
             System.out.println("Client" + id + " connected.");
-            ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id);
+            ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id, numberOfConcurrentRequests, filterWords);
             clients.add(connectHandle);
             pool.execute(connectHandle);
             id++;
