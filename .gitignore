@@ -6,6 +6,7 @@
 .idea/*
 /client/target/
 /server/target/
+.vscode/*
 
 # Compiled class file
 *.class

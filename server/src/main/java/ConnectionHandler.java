@@ -80,8 +80,7 @@ public class ConnectionHandler implements Runnable {
                         System.out.println("Client" + id +" disconnected.");
                     }else{
                         message = request.substring(firstSpace+0);
-                        FilterMessage filterMessage = new FilterMessage(filterWords, message); // TODO tocar isto por uma thread pool
-                        message = filterMessage.filter();
+                        ThreadPoolRun(2); 
 
                         Broadcast(message);
                     }
@@ -139,6 +138,13 @@ public class ConnectionHandler implements Runnable {
         }catch (IOException e){
 
         }
+    }
+
+    public static void ThreadPoolRun (int nThreads){
+        ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+            Runnable filterProcess = new FilterMessage(filterWords, message);
+            executor.execute(filterProcess);
+            
     }
 }
 
