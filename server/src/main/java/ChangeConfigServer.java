@@ -56,7 +56,7 @@ public class ChangeConfigServer extends Thread {
     /**
      * @param filter - string to add or remove from the list of filter words
      */
-    private void handleFilter(String filter) {
+    protected void handleFilter(String filter) {
         if (filterWords.contains(filter)) {
             filterWords.remove(filter);
             System.out.println(filter + " has remove from the list of filter words");
@@ -69,7 +69,7 @@ public class ChangeConfigServer extends Thread {
     /**
      * @param quantity - number to change the number of concurrent requests
      */
-    private void chageNumberOfConcurrentRequests(String quantity) {
+    protected void chageNumberOfConcurrentRequests(String quantity) {
         try {
             int num = Integer.parseInt(quantity);
             if (num > numberOfConcurrentRequests.availablePermits()) {

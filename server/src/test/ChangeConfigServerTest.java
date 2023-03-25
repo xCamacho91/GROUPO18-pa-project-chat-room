@@ -20,14 +20,13 @@ public class ChangeConfigServerTest {
             filterWords.add(readerFile.nextLine());
         }
         readerFile.close();
-        String promtUser = "9";
-        String promtFilter = "red";
+
         ChangeConfigServer change = new ChangeConfigServer(numberOfConcurrentRequests, filterWords);
-        change.handleFilter(promtFilter);
+        change.handleFilter("red");
         assertEquals(filterWords.contains("red"), true);
-        change.handleFilter(promtFilter);
+        change.handleFilter("red");
         assertEquals(filterWords.contains("red"), false);
-        change.chageNumberOfConcurrentRequests(promtUser);
+        change.chageNumberOfConcurrentRequests("9");
         assertEquals(numberOfConcurrentRequests.availablePermits(), 9);
         }
     }
