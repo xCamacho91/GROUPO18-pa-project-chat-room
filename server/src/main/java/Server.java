@@ -85,11 +85,14 @@ public class Server {
         System.out.println("Server is now available");
         while (true){
             Socket client =  listener.accept();
-            System.out.println("Client" + id + " connected.");
             ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id, numberOfConcurrentRequests, filterWords);
             clients.add(connectHandle);
             pool.execute(connectHandle);
             id++;
+
+            ChangeConfigServer changeConfigServer = new ChangeConfigServer(numberOfConcurrentRequests, filterWords);
+            pool.execute(changeConfigServer);
         }
+
     }
 }

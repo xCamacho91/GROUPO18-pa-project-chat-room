@@ -75,14 +75,13 @@ public class ConnectionHandler implements Runnable {
                 String request = in.readLine();
                 if (request.contains("")){
                     int firstSpace = request.indexOf("");
-                    if (request.startsWith("/sair")){
+                    if (request.startsWith("/quit")){
                         shutdown();
                         System.out.println("Client" + id +" disconnected.");
                     }else{
                         message = request.substring(firstSpace+0);
                         FilterMessage filterMessage = new FilterMessage(filterWords, message); // TODO tocar isto por uma thread pool
                         message = filterMessage.filter();
-
                         Broadcast(message);
                     }
                 }
@@ -96,31 +95,6 @@ public class ConnectionHandler implements Runnable {
         }
         //processRequests();
     }
-
-    /*
-    private void processRequests() {
-        //Thread t = new Thread( ()-> {
-            while ( true ) {
-                try {
-                    System.out.println ( "Accepting Data" );
-                    socket = server.accept ( );
-                    in = new DataInputStream ( socket.getInputStream ( ) );
-                    out = new PrintWriter ( socket.getOutputStream ( ) , true );
-                    String message = in.readUTF ( );
-
-                    //thread para filtrar o conteudo das mensagens antes de apresentar
-                    System.out.println ( "***** " + message + " *****" );
-                    // escrita para o ficheiro de log das mensagens
-
-                    out.println ( filter("profanity_words.txt", message) );
-
-                } catch ( IOException e ) {
-                    e.printStackTrace ( );
-                }
-            }
-        //});
-        //t.start();
-    }*/
 
     private void Broadcast(String message) { //funcao que vai mandar mensagem para todos os clients
         for (ConnectionHandler aClient : clients ){
