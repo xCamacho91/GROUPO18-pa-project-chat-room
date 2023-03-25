@@ -6,8 +6,13 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+
+import static java.lang.Integer.parseInt;
 
 public class Server {
+
+
 
     /**
      * The port where the server is going to run in.
@@ -22,7 +27,7 @@ public class Server {
     /**
      * The number of concurrent requests that the server can handle.
      */
-    private static int numberOfConcurrentRequests;
+    private static Semaphore numberOfConcurrentRequests;
 
     /**
      * The list of clients connected to the server.
@@ -57,8 +62,8 @@ public class Server {
             serverConfig = new Properties();
             InputStream configPathInputStream = new FileInputStream("server/server.config");
             serverConfig.load(configPathInputStream);
-            PORT = Integer.parseInt(serverConfig.getProperty("server.port"));
-            numberOfConcurrentRequests = Integer.parseInt(serverConfig.getProperty("server.maximum.users"));
+            PORT = parseInt(serverConfig.getProperty("server.port"));
+            numberOfConcurrentRequests = new Semaphore(parseInt(serverConfig.getProperty("server.maximum.users"),10));
         } catch (IOException e) {
             System.out.println("Config file not found.");
             throw new RuntimeException(e);
@@ -78,18 +83,23 @@ public class Server {
         readerFile.close();
     }
 
-    public static void main ( String[] args ) throws IOException {
+    public static void main ( String[] args ) throws IOException, InterruptedException {
         initializeSettings();
         readFilterFile();
         ServerSocket listener = new ServerSocket(PORT);
         System.out.println("Server is now available");
+
         while (true){
+
             Socket client =  listener.accept();
             System.out.println("Client" + id + " connected.");
             ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id, numberOfConcurrentRequests, filterWords);
             clients.add(connectHandle);
             pool.execute(connectHandle);
             id++;
+
+
         }
+
     }
 }

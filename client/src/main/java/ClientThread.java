@@ -21,7 +21,8 @@ public class ClientThread extends Thread {
     private Socket server;
     private ReentrantLock lockWriteFile;
 
-    public ClientThread(Socket s, ReentrantLock lockWriteFile) throws IOException {
+    public ClientThread(Socket s, ReentrantLock lockWriteFile, int id) throws IOException {
+        this.id=id;
         server = s;
         in = new BufferedReader(new InputStreamReader((server.getInputStream())));
         this.lockWriteFile = lockWriteFile;
@@ -48,7 +49,7 @@ public class ClientThread extends Thread {
 
                 if (RespostaServer == null) break;
 
-                System.out.println("Client: " + RespostaServer);
+                System.out.println("Client" + id + ": " + RespostaServer);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
