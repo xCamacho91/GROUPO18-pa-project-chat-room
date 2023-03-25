@@ -8,10 +8,13 @@ import java.util.concurrent.Semaphore;
 import org.junit.jupiter.api.Test;
 
 public class ChangeConfigServerTest {
-
     private ArrayList<String> filterWords= new ArrayList<>();
-
     private Semaphore numberOfConcurrentRequests = new Semaphore(4);
+
+    /**
+     * The test for the changing configurations
+     * @throws IOException
+     */
     @Test
     public void testRunMethod() throws IOException {
         File profanity = new File ("filtro.txt");
