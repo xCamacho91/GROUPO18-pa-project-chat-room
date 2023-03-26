@@ -9,6 +9,8 @@ public class FilterMessage implements Runnable {
      * unfiltered message
      */
     private String message;
+    
+    
 
     /**
      * @param message - unfilterd message
@@ -24,6 +26,9 @@ public class FilterMessage implements Runnable {
      */
     public String filter (){
         for (String word : filterWords) {
+            message = message.replace(" " + word + " ", "****");
+            message = message.replace( word + " ", "****");
+            message = message.replace( " " + word, "****");
             message = message.replace(word, "****");
         }
         return message;

@@ -6,6 +6,7 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Integer.parseInt;
@@ -22,6 +23,7 @@ public class ConnectionHandler implements Runnable {
      * The message received from the client.
      */
     private static String message;
+
 
     private final ExecutorService executor;
 
@@ -81,7 +83,7 @@ public class ConnectionHandler implements Runnable {
                     }else{
                         message = request.substring(firstSpace+0);
                         ThreadPoolRun(2); 
-
+                            
                         Broadcast(message);
                     }
                 }
@@ -140,11 +142,13 @@ public class ConnectionHandler implements Runnable {
         }
     }
 
+    
+    /** Runs the filter threadpool
+     * @param nThreads -- number of threads of the filter threadpool
+     */
     public static void ThreadPoolRun (int nThreads){
         ExecutorService executor = Executors.newFixedThreadPool(nThreads);
-            Runnable filterProcess = new FilterMessage(filterWords, message);
-            executor.execute(filterProcess);
-            
+            executor.execute(new FilterMessage(filterWords, message));
     }
 }
 
