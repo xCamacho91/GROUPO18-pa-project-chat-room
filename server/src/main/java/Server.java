@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import static java.lang.Integer.parseInt;
+import static java.lang.System.out;
 
 public class Server {
 
@@ -65,7 +66,7 @@ public class Server {
             PORT = parseInt(serverConfig.getProperty("server.port"));
             numberOfConcurrentRequests = new Semaphore(parseInt(serverConfig.getProperty("server.maximum.users"), 10));
         } catch (IOException e) {
-            System.out.println("Config file not found.");
+            out.println("Config file not found.");
             throw new RuntimeException(e);
         }
     }
@@ -87,15 +88,12 @@ public class Server {
         initializeSettings();
         readFilterFile();
         ServerSocket listener = new ServerSocket(PORT);
-        System.out.println("Server is now available");
+        out.println("Server is now available");
 
         while (true){
 
             Socket client =  listener.accept();
-            System.out.println("Client" + id + " connected.");
-            for (ConnectionHandler aClient : clients ){
-                System.out.println("Client" + id + " connected.");
-            }
+            out.println("Client" + id + " connected.");
             ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id, numberOfConcurrentRequests, filterWords);
             clients.add(connectHandle);
             pool.execute(connectHandle);
