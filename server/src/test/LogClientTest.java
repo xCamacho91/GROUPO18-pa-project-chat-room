@@ -25,9 +25,7 @@ public class LogClientTest {
         while(fileReader.hasNext()){
             lastLine = fileReader.nextLine();
         }
-        assertEquals(timestamp+" - Action : MESSAGE - CLIENT2 - \"ServerLog Test2\"",lastLine);
-        // is working but the timestamp is not the same as the one in the file so the test fails
-        // the path for the server.log file is different for the directory in the method itself
+        assertEquals(timestamp+" - Action : MESSAGE - CLIENT 2 - \"ServerLog Test2\"",lastLine);
     }
 
 }
