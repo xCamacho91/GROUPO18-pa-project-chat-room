@@ -10,14 +10,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LogClientTest {
 
+    private String serverLogFileName = "server.log";
     private static ReentrantLock lockWriteFile = new ReentrantLock();
     @Test
     public void testRunMethod() throws FileNotFoundException {
 
-        LogClient cli = new LogClient ("MESSAGE", 2, "ServerLog Test2", lockWriteFile);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        LogClient cli = new LogClient (timestamp, "MESSAGE", 2, "ServerLog Test2", lockWriteFile, serverLogFileName);
         cli.run();
         String lastLine = "";
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
         File file = new File("server.log");
         Scanner fileReader = new Scanner(file);
