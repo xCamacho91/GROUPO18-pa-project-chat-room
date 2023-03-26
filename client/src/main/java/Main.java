@@ -13,23 +13,27 @@ public class Main {
     private final String DISCONNECT = "DISCONNECT";
     private final String CONNECT = "CONNECT";
     private final String WAITING = "WAITING";
+    private static int id;
     private static ReentrantLock lockWriteFile = new ReentrantLock();
     public static void main ( String[] args ) throws IOException {
         Socket socket = new Socket(IP,PORT);
-        ClientThread servercon = new ClientThread (socket, lockWriteFile);
+        ClientThread servercon = new ClientThread (socket, lockWriteFile, id);
         BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
 
         new Thread(servercon).start();
 
         while (true){
             String comando = keyboard.readLine();
-            LogClient logClient = new LogClient(MESSAGE, 1, comando.toString(), lockWriteFile);
+            LogClient logClient = new LogClient(MESSAGE, 1, comando.toString(), lockWriteFile); //o client id é sempre1?
             logClient.run();
-            if(comando.equals("/break")) break; //mudar aqui
+            if(comando.equals("/break")) break;
             out.println(comando);
+            id++;
         }
         socket.close();
         System.exit(0);
+
     }
 }
