@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static java.lang.Thread.sleep;
+
 public class Main {
 
     private static final  String IP = "127.0.0.1";
@@ -15,7 +17,7 @@ public class Main {
     private final String WAITING = "WAITING";
     private static int id;
     private static ReentrantLock lockWriteFile = new ReentrantLock();
-    public static void main ( String[] args ) throws IOException {
+    public static void main ( String[] args ) throws IOException, InterruptedException {
         Socket socket = new Socket(IP,PORT);
         ClientThread servercon = new ClientThread (socket, lockWriteFile, id);
         BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
@@ -28,12 +30,16 @@ public class Main {
             String comando = keyboard.readLine();
             LogClient logClient = new LogClient(MESSAGE, 1, comando.toString(), lockWriteFile); //o client id é sempre1?
             logClient.run();
-            if(comando.equals("/break")) break;
+            if(comando.equals("/quit")) {
+                LogClient logClients = new LogClient(DISCONNECT, 1, comando.toString(), lockWriteFile);
+                logClients.run();
+                sleep(1000);
+                break; //mudar aqui
+            }
             out.println(comando);
             id++;
         }
         socket.close();
         System.exit(0);
-
     }
 }

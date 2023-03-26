@@ -65,7 +65,7 @@ public class ConnectionHandler implements Runnable {
                 String request = in.readLine();
                 if (request.contains("")){
                     int firstSpace = request.indexOf("");
-                    if (request.startsWith("/sair")){
+                    if (request.startsWith("/quit")){
                         shutdown();
                         System.out.println("Client" + id +" disconnected.");
                         broadcast3("xxx: " + client.getInetAddress().getHostAddress(),id );
@@ -79,49 +79,21 @@ public class ConnectionHandler implements Runnable {
                         Broadcast(message, id);
 
 
+                        Broadcast(message);
                     }
                 }
                 else{
                     out.println("...");
                 }
                 System.out.println("Client" + id +": "  + request);
-                numberOfConcurrentRequests.release();
             }
         }  catch (IOException e) {
             shutdown();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
-
         //processRequests();
     }
 
-    /*
-    private void processRequests() {
-        //Thread t = new Thread( ()-> {
-            while ( true ) {
-                try {
-                    System.out.println ( "Accepting Data" );
-                    socket = server.accept ( );
-                    in = new DataInputStream ( socket.getInputStream ( ) );
-                    out = new PrintWriter ( socket.getOutputStream ( ) , true );
-                    String message = in.readUTF ( );
-
-                    //thread para filtrar o conteudo das mensagens antes de apresentar
-                    System.out.println ( "***** " + message + " *****" );
-                    // escrita para o ficheiro de log das mensagens
-
-                    out.println ( filter("profanity_words.txt", message) );
-
-                } catch ( IOException e ) {
-                    e.printStackTrace ( );
-                }
-            }
-        //});
-        //t.start();
-    }*/
-
-    private void Broadcast(String message, int id) { //funcao que vai mandar mensagem para todos os clients
+    private void Broadcast(String message) { //funcao que vai mandar mensagem para todos os clients
         for (ConnectionHandler aClient : clients ){
             //if (aClient.id!=id){                    DESCOMENTAR PARA NAO APARECER A MENSAGEM DO PROPRIO CLIENTE NO SEU CHAT
                 aClient.out.println("Client" + id + ": "+ message);
@@ -153,8 +125,5 @@ public class ConnectionHandler implements Runnable {
 
         }
     }
-
-
-
 }
 

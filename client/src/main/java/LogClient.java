@@ -50,8 +50,6 @@ public class LogClient extends Thread {
             File file = new File(fileName);
             if (file.createNewFile()) {
                 System.out.println("File created: " + file.getName());
-            } else {
-                System.out.println("File already exists.");
             }
         }catch (IOException e){
             System.out.println("An error occurred.");
@@ -69,7 +67,6 @@ public class LogClient extends Thread {
             FileWriter writer = new FileWriter(fileName,true);
             writer.append(message);
             writer.close();
-            System.out.println(message);
         }catch (IOException e){
             System.out.println("An error occurred.");
             e.printStackTrace();
