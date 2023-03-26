@@ -9,7 +9,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import static java.lang.Integer.parseInt;
-import static java.lang.System.out;
 
 public class Server {
 
@@ -61,8 +60,8 @@ public class Server {
             serverConfig = new Properties();
             InputStream configPathInputStream = new FileInputStream("server/server.config");
             serverConfig.load(configPathInputStream);
-            PORT = parseInt(serverConfig.getProperty("server.port"));
-            numberOfConcurrentRequests = new Semaphore(parseInt(serverConfig.getProperty("server.maximum.users"), 10));
+            PORT = Integer.parseInt(serverConfig.getProperty("server.port"));
+            numberOfConcurrentRequests = new Semaphore( parseInt(serverConfig.getProperty("server.maximum.users"), 10));
         } catch (IOException e) {
             System.out.println("Config file not found.");
             throw new RuntimeException(e);
@@ -82,7 +81,7 @@ public class Server {
         readerFile.close();
     }
 
-    public static void main ( String[] args ) throws IOException, InterruptedException {
+    public static void main ( String[] args ) throws IOException {
         initializeSettings();
         readFilterFile();
         ServerSocket listener = new ServerSocket(PORT);
