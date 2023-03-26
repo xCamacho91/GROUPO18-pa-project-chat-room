@@ -77,7 +77,7 @@ public class ConnectionHandler implements Runnable {
                         FilterMessage filterMessage = new FilterMessage(filterWords, message); // TODO tocar isto por uma thread pool
                         message = filterMessage.filter();
 
-                        Broadcast(message);
+                        Broadcast(message, id);
 
                     }
                 }
@@ -121,9 +121,12 @@ public class ConnectionHandler implements Runnable {
         //t.start();
     }*/
 
-    private void Broadcast(String message) { //funcao que vai mandar mensagem para todos os clients
+    private void Broadcast(String message, int id) { //funcao que vai mandar mensagem para todos os clients
         for (ConnectionHandler aClient : clients ){
-            aClient.out.println(message);
+            //if (aClient.id!=id){                    DESCOMENTAR PARA NAO APARECER A MENSAGEM DO PROPRIO CLIENTE NO SEU CHAT
+                aClient.out.println("Client" + id + ": "+ message);
+            //}
+
         }
     }
 

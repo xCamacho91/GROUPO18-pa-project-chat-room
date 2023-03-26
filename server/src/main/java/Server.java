@@ -93,6 +93,9 @@ public class Server {
 
             Socket client =  listener.accept();
             System.out.println("Client" + id + " connected.");
+            for (ConnectionHandler aClient : clients ){
+                System.out.println("Client" + id + " connected.");
+            }
             ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id, numberOfConcurrentRequests, filterWords);
             clients.add(connectHandle);
             pool.execute(connectHandle);
