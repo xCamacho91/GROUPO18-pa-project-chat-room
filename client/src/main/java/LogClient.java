@@ -9,28 +9,28 @@ public class LogClient extends Thread {
     /**
      * The path of the file to save the requests' information to.
      */
-    private String serverLogFileName;
+    private final String serverLogFileName;
 
     /**
      * The time the action was performed
      */
-    private Timestamp timestamp;
+    private final Timestamp timestamp;
     /**
      * code for the action WIP
      */
-    private String action;
+    private final String action;
     /**
      * ID of the client that performed the action
      */
-    private int clientID;
+    private final int clientID;
     /**
      * message sent by the client
      */
-    private String message;
+    private final String message;
     /**
      * The lock responsible for the log document, which contains a list of requests information.
      */
-    private ReentrantLock lockWriteFile;
+    private final ReentrantLock lockWriteFile;
 
     /**
      *
