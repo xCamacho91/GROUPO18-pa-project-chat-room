@@ -33,10 +33,14 @@ public class LogClient extends Thread {
     private final ReentrantLock lockWriteFile;
 
     /**
+     * The constructor of the thread that logs the requests' information.
      *
+     * @param timestamp - The time the action was performed
      * @param action - code for the action WIP
      * @param clientID - ID of the client that performed the action
      * @param message - message sent by the client
+     * @param lockWriteFile - The lock responsible for the log document, which contains a list of requests information.
+     * @param serverLogFileName - The path of the file to save the requests' information to.
      */
     public LogClient(Timestamp timestamp, String action, int clientID, String message, ReentrantLock lockWriteFile, String serverLogFileName) {
         this.timestamp = timestamp;
