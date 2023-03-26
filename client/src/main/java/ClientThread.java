@@ -28,20 +28,8 @@ public class ClientThread extends Thread {
         this.lockWriteFile = lockWriteFile;
     }
 
-    /*
-    public ClientThread ( int port , int id , int freq ) {
-        this.port = port;
-        this.id = id;
-        this.freq = freq;
-
-        lockWriteFile = new ReentrantLock();
-
-        createFile(serverLogFileName);
-    }*/
-
     @Override
     public void run ( ) {
-        //parseRequest ( );
         String RespostaServer = null;
         try {
             while (true) {
@@ -61,39 +49,6 @@ public class ClientThread extends Thread {
             }
         }
     }
-    /*
-    private void parseRequest() {
-        Thread t = new Thread( ()-> {
-            int i = 0;
-            StringBuilder stringBuilder = new StringBuilder();
-            while ( true ) {
-                System.out.println ( "Sending Data" );
-                try {
-                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    // if(sem.tryAcquire(1, TimeUnit.SECONDS)) {
-                    socket = new Socket ( "localhost" , port );
-                    serverLog(timestamp,CONNECT,id,stringBuilder.toString());
-                    out = new DataOutputStream ( socket.getOutputStream ( ) );
-                    in = new BufferedReader ( new InputStreamReader ( socket.getInputStream ( ) ) );
-                    stringBuilder.append("My message number " + i + " to the server " + "I'm " + id );
-                    out.writeUTF ( stringBuilder.toString());
-                    serverLog(timestamp,MESSAGE,id,stringBuilder.toString());
-                    stringBuilder.setLength(0);
-                    String response;
-                    response = in.readLine ( );
-                    System.out.println ( "From Server " + response );
-                    out.flush ( );
-                    socket.close ( );
-                    serverLog(timestamp,DISCONNECT,id,stringBuilder.toString());
-                    sleep ( freq );
-                    i++;
-                } catch ( IOException | InterruptedException e ) {
-                    e.printStackTrace ( );
-                }
-            }
-        });
-        t.start();
-    } */
 
 
 }
