@@ -49,7 +49,7 @@ public class ClientThread extends Thread {
 
                 if (RespostaServer == null) break;
 
-                System.out.println("Client" + id + ": " + RespostaServer);
+                System.out.println(RespostaServer);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

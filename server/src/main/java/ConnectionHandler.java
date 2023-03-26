@@ -1,12 +1,9 @@
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Integer.parseInt;
 
@@ -24,7 +21,6 @@ public class ConnectionHandler implements Runnable {
     private static String message;
 
     private final ExecutorService executor;
-
     /**
      * list of profanity words
      */
@@ -33,7 +29,7 @@ public class ConnectionHandler implements Runnable {
     /**
      * The semaphore responsible for the number of requests that can be served simultaneously.
      */
-    private static int numberOfConcurrentRequests;
+    private static Semaphore numberOfConcurrentRequests;
 
 
 
@@ -45,17 +41,16 @@ public class ConnectionHandler implements Runnable {
      * @param id
      * @throws IOException
      */
-    public ConnectionHandler(Socket clientSocket, ArrayList<ConnectionHandler> clients, int id, int numberOfConcurrentRequests, ArrayList<String> filterWords ) throws IOException {
+    public ConnectionHandler(Socket clientSocket, ArrayList<ConnectionHandler> clients, int id, Semaphore numberOfConcurrentRequests, ArrayList<String> filterWords ) throws IOException {
         this.client = clientSocket;
         this.clients = clients;
         this.id= id;
         this.filterWords = filterWords;
-        this.executor = Executors.newFixedThreadPool(numberOfConcurrentRequests);
+        this.numberOfConcurrentRequests=numberOfConcurrentRequests;
+        this.executor = Executors.newFixedThreadPool(4);
         in = new BufferedReader(new InputStreamReader((client.getInputStream())));
         out = new PrintWriter(client.getOutputStream(), true);
     }
-
-
     /**
      * The thread's run method.
      * Accepts clients and creates a new thread to serve each individual client.
@@ -63,20 +58,26 @@ public class ConnectionHandler implements Runnable {
     @Override
     public void run ( ) {
         try{
+            broadcast2("xxx: " + client.getInetAddress().getHostAddress(),id );
             while (true){
+                numberOfConcurrentRequests.acquire();
+                System.out.println("Users: " + numberOfConcurrentRequests);
                 String request = in.readLine();
                 if (request.contains("")){
                     int firstSpace = request.indexOf("");
                     if (request.startsWith("/sair")){
                         shutdown();
                         System.out.println("Client" + id +" disconnected.");
+                        broadcast3("xxx: " + client.getInetAddress().getHostAddress(),id );
+                        numberOfConcurrentRequests.release();
 
                     }else{
                         message = request.substring(firstSpace+0);
                         FilterMessage filterMessage = new FilterMessage(filterWords, message); // TODO tocar isto por uma thread pool
                         message = filterMessage.filter();
 
-                        Broadcast(message);
+                        Broadcast(message, id);
+
 
                     }
                 }
@@ -84,9 +85,12 @@ public class ConnectionHandler implements Runnable {
                     out.println("...");
                 }
                 System.out.println("Client" + id +": "  + request);
+                numberOfConcurrentRequests.release();
             }
         }  catch (IOException e) {
             shutdown();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         //processRequests();
@@ -117,9 +121,23 @@ public class ConnectionHandler implements Runnable {
         //t.start();
     }*/
 
-    private void Broadcast(String message) { //funcao que vai mandar mensagem para todos os clients
+    private void Broadcast(String message, int id) { //funcao que vai mandar mensagem para todos os clients
         for (ConnectionHandler aClient : clients ){
-            aClient.out.println(message);
+            //if (aClient.id!=id){                    DESCOMENTAR PARA NAO APARECER A MENSAGEM DO PROPRIO CLIENTE NO SEU CHAT
+                aClient.out.println("Client" + id + ": "+ message);
+            //}
+
+        }
+    }
+
+    public void broadcast2(String message, int id) {
+        for (ConnectionHandler aClient : clients) {
+            aClient.out.println("Client"+ id + " " +"connected to chat");
+        }
+    }
+    public void broadcast3(String message, int id) {
+        for (ConnectionHandler aClient : clients) {
+            aClient.out.println("Client"+ id + " " +"disconnected from chat");
         }
     }
 
