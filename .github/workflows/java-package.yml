@@ -6,11 +6,13 @@ on:
       - master
       - develop
       - gitactions
+      - final
   push:
     branches:
       - master
       - develop
       - gitactions
+      - final
 
 jobs:
   build:
