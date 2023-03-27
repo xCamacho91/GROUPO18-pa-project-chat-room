@@ -60,9 +60,11 @@ public class ConnectionHandler implements Runnable {
     /**
      * Constructor for the thread responsible for handling client connections.
      *
-     * @param clientSocket
-     * @param clients
-     * @param id
+     * @param clientSocket -  socket to connect server to each client
+     * @param clients - list of clients in chat
+     * @param id - the id of clients
+     * @param numberOfConcurrentRequests - semaphore to control number of clients at the same time in chat
+     * @param filterWords - list of profanity words
      * @throws IOException
      */
     public ConnectionHandler(Socket clientSocket, ArrayList<ConnectionHandler> clients, int id, Semaphore numberOfConcurrentRequests, ArrayList<String> filterWords ) throws IOException {
@@ -139,6 +141,13 @@ public class ConnectionHandler implements Runnable {
         }
     }
 
+    /**
+     * Send messages to all clients on chat. Normal messages or if a client disconnect or connect
+     *
+     * @param message - string with the message from a client to all clients in the chat
+     * @param id - the id of each client
+     * @param type - type of message: connect, disconnect, normal
+     */
     private void Broadcast(String message, int id, int type) {
         for (ConnectionHandler aClient : clients ){
             if (aClient.id!=id) {
@@ -157,6 +166,9 @@ public class ConnectionHandler implements Runnable {
         }
     }
 
+    /**
+     * When some client quit chat, or the function processClientRequests enter in to an exception, the connection between client and server should end.
+     */
     public void shutdown(){
         done =true;
         try{

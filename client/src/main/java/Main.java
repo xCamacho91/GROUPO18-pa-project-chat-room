@@ -57,7 +57,7 @@ public class Main {
             if(comando.equals("/quit")) {
                 LogClient logClients = new LogClient(timestamp, DISCONNECT, id, comando, lockWriteFile, serverLogFileName);
                 logClients.start();
-                break; //mudar aqui
+                break;
             }
             out.println(comando);
         }
