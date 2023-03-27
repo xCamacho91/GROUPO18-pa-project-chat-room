@@ -3,7 +3,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -26,6 +28,11 @@ public class Server {
      * The number of concurrent requests that the server can handle.
      */
     private static Semaphore numberOfConcurrentRequests;
+
+    /**
+     * The number of workers that the server can handle.
+     */
+    private static int numberOfWorkers;
 
     /**
      * The list of clients connected to the server.
@@ -51,6 +58,16 @@ public class Server {
     private static ArrayList<String> filterWords = new ArrayList<String>();
 
     /**
+     * queue with the messages received from the clients
+     */
+    private static Queue<String> messageQueue = new ConcurrentLinkedQueue<>();
+
+    /**
+     * queue with the messages received from the clients
+     */
+    private static Queue<String> filteredQueue = new ConcurrentLinkedQueue<>();
+
+    /**
      * Constructor for the thread responsible for accepting the clients.
      *
      * @throws IOException if an I/O error occurs when creating the output stream or if the socket is not connected.
@@ -61,6 +78,7 @@ public class Server {
             InputStream configPathInputStream = new FileInputStream("server/server.config");
             serverConfig.load(configPathInputStream);
             PORT = Integer.parseInt(serverConfig.getProperty("server.port"));
+            numberOfWorkers = Integer.parseInt(serverConfig.getProperty("server.maximum.workers"));
             numberOfConcurrentRequests = new Semaphore( parseInt(serverConfig.getProperty("server.maximum.users"), 10));
         } catch (IOException e) {
             System.out.println("Config file not found.");
@@ -81,7 +99,7 @@ public class Server {
         readerFile.close();
     }
 
-    public static void main ( String[] args ) throws IOException {
+    public static void run ( ) throws IOException {
         initializeSettings();
         readFilterFile();
         ServerSocket listener = new ServerSocket(PORT);
@@ -90,14 +108,14 @@ public class Server {
         while (true){
 
             Socket client =  listener.accept();
-            ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id, numberOfConcurrentRequests, filterWords);
+            ConnectionHandler connectHandle = new ConnectionHandler(client, clients, id, numberOfConcurrentRequests, numberOfWorkers, filterWords, messageQueue, filteredQueue);
             clients.add(connectHandle);
             pool.execute(connectHandle);
             id++;
 
             ChangeConfigServer changeConfigServer = new ChangeConfigServer(numberOfConcurrentRequests, filterWords);
             changeConfigServer.start();
-            //pool.execute(changeConfigServer);
         }
     }
+
 }
