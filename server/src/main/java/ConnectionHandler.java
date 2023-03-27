@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,7 +39,6 @@ public class ConnectionHandler implements Runnable {
      */
     private static String message;
 
-    private final ExecutorService executor;
     /**
      * list of profanity words
      */
@@ -127,7 +128,7 @@ public class ConnectionHandler implements Runnable {
                         
                         ThreadPoolRun(2); 
                             
-                        Broadcast(message);
+                        Broadcast(message,id,TYPE_BROADCAST_MESSAGE);
                     }
                 } else {
                     out.println("...");
