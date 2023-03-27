@@ -25,5 +25,4 @@ public class LogClientTest {
         }
         assertEquals(timestamp+" - Action : MESSAGE - CLIENT 2 - \"ServerLog Test2\"",lastLine);
     }
-
 }
