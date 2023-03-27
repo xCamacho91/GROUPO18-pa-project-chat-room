@@ -16,7 +16,7 @@ public class Main {
     private final static String CONNECT = "CONNECT";
     private final static String WAITING = "WAITING";
     private final static ReentrantLock lockWriteFile = new ReentrantLock();
-    public static void main ( String[] args ) throws IOException {
+    public static void main ( String[] args ) throws IOException, InterruptedException {
 
         //System.out.println("Enter the IP address:");
         //BufferedReader keyboardIP = new BufferedReader(new InputStreamReader(System.in));
@@ -34,7 +34,7 @@ public class Main {
         System.out.println("Your ID is: " + id);
         int sem;
         sem = dataInputStream.readInt(); // Receive the ID from the server
-        System.out.println("Your ID is: " + sem);
+        System.out.println("Available entries: " + sem);
         if ( sem != 0) {
             LogClient logClient = new LogClient(timestamp, CONNECT, id, "", lockWriteFile, serverLogFileName);
             logClient.start();
@@ -55,6 +55,7 @@ public class Main {
             LogClient logClient = new LogClient(timestamp, MESSAGE, id, comando, lockWriteFile, serverLogFileName);
             logClient.start();
             if(comando.equals("/quit")) {
+                out.println(comando);
                 LogClient logClients = new LogClient(timestamp, DISCONNECT, id, comando, lockWriteFile, serverLogFileName);
                 logClients.start();
                 break;

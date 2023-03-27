@@ -119,10 +119,10 @@ public class ConnectionHandler implements Runnable {
                 if (request.contains("")){
                     int firstSpace = request.indexOf("");
                     if (request.startsWith("/quit")){
-                        shutdown();
                         System.out.println("Client" + id +" disconnected.");
                         Broadcast("", id, TYPE_BROADCAST_DISCONNECT);
                         numberOfConcurrentRequests.release();
+                        shutdown();
                     } else {
                         message = request.substring(firstSpace+0);
                         
@@ -153,7 +153,7 @@ public class ConnectionHandler implements Runnable {
      */
     private void Broadcast(String message, int id, int type) {
         for (ConnectionHandler aClient : clients ){
-            if (aClient.id!=id) {
+            if (aClient.id != id) {
                 switch (type) {
                     case TYPE_BROADCAST_MESSAGE:
                         aClient.out.println("Client " + id + ": " + message);
