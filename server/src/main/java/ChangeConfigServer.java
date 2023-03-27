@@ -1,16 +1,24 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 public class ChangeConfigServer extends Thread {
 
+    /**
+     * semaphore to change the number of concurrent requests
+     */
     private Semaphore numberOfConcurrentRequests;
-
+    /**
+     * list of filter words
+     */
     private ArrayList<String> filterWords;
 
+    /**
+     * @param numberOfConcurrentRequests - semaphore to change the number of concurrent requests
+     * @param filterWords - list of filter words
+     */
     public ChangeConfigServer(Semaphore numberOfConcurrentRequests, ArrayList<String> filterWords) {
         this.numberOfConcurrentRequests = numberOfConcurrentRequests;
         this.filterWords = filterWords;
@@ -45,9 +53,6 @@ public class ChangeConfigServer extends Thread {
                     }
                 }
                 in.close();
-                // Parse the response to extract the prompt
-                String prompt = response.toString();
-                // Do something with the prompt
             }
         } catch (IOException e) {
             e.printStackTrace();
