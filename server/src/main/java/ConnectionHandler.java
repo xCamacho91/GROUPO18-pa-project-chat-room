@@ -1,11 +1,8 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Queue;
+import java.util.concurrent.*;
 
 
 public class ConnectionHandler implements Runnable {
@@ -59,7 +56,18 @@ public class ConnectionHandler implements Runnable {
      * The type of message received from the client.
      */
     private final static int TYPE_BROADCAST_DISCONNECT = 3;
-
+    /**
+     * The type of message received from the client.
+     */
+    private Queue<String> messageQueue;
+    /**
+     * The type of message received from the client.
+     */
+    private Queue<String> filteredQueue;
+    /**
+     * The number of workers that the server can handle.
+     */
+    private int numberOfWorkers;
 
     /**
      * Constructor for the thread responsible for handling client connections.
@@ -71,11 +79,14 @@ public class ConnectionHandler implements Runnable {
      * @param filterWords - list of profanity words
      * @throws IOException
      */
-    public ConnectionHandler(Socket clientSocket, ArrayList<ConnectionHandler> clients, int id, Semaphore numberOfConcurrentRequests, ArrayList<String> filterWords ) throws IOException {
+    public ConnectionHandler(Socket clientSocket, ArrayList<ConnectionHandler> clients, int id, Semaphore numberOfConcurrentRequests, int numberOfWorkers, ArrayList<String> filterWords, Queue<String> messageQueue, Queue<String> filteredQueue ) throws IOException {
         this.client = clientSocket;
         this.clients = clients;
         this.id= id;
         this.filterWords = filterWords;
+        this.messageQueue = messageQueue;
+        this.filteredQueue = filteredQueue;
+        this.numberOfWorkers = numberOfWorkers;
         this.numberOfConcurrentRequests = numberOfConcurrentRequests;
         in = new BufferedReader(new InputStreamReader((client.getInputStream())));
         out = new PrintWriter(client.getOutputStream(), true);
@@ -87,8 +98,8 @@ public class ConnectionHandler implements Runnable {
      */
     @Override
     public void run ( ) {
+
         System.out.println("Client " + id + " connected.");
-        Broadcast("", id, TYPE_BROADCAST_CONNECT);
 
         try {
             OutputStream outputStream = client.getOutputStream();
@@ -99,6 +110,7 @@ public class ConnectionHandler implements Runnable {
             throw new RuntimeException(e);
         }
 
+        Broadcast("", id, TYPE_BROADCAST_CONNECT);
         try {
             numberOfConcurrentRequests.acquire();
         } catch (InterruptedException e) {
@@ -113,8 +125,6 @@ public class ConnectionHandler implements Runnable {
     private void processClientRequests() {
         try{
             while (true){
-                System.out.println(numberOfConcurrentRequests);
-
                 String request = in.readLine();
                 if (request.contains("")){
                     int firstSpace = request.indexOf("");
@@ -125,10 +135,8 @@ public class ConnectionHandler implements Runnable {
                         shutdown();
                     } else {
                         message = request.substring(firstSpace+0);
-                        
-                        ThreadPoolRun(2); 
-                            
-                        Broadcast(message,id,TYPE_BROADCAST_MESSAGE);
+                        messageQueue.add(message);
+                        handlerFilterMessages();
                     }
                 } else {
                     out.println("...");
@@ -153,18 +161,16 @@ public class ConnectionHandler implements Runnable {
      */
     private void Broadcast(String message, int id, int type) {
         for (ConnectionHandler aClient : clients ){
-            if (aClient.id != id) {
-                switch (type) {
-                    case TYPE_BROADCAST_MESSAGE:
-                        aClient.out.println("Client " + id + ": " + message);
-                        break;
-                    case TYPE_BROADCAST_CONNECT:
-                        aClient.out.println("Client "+ id + " " +"connected to chat");
-                        break;
-                    case TYPE_BROADCAST_DISCONNECT:
-                        aClient.out.println("Client "+ id + " " +"disconnected from chat");
-                        break;
-                }
+            switch (type) {
+                case TYPE_BROADCAST_MESSAGE:
+                    aClient.out.println("Client " + id + ": " + message);
+                    break;
+                case TYPE_BROADCAST_CONNECT:
+                    aClient.out.println("Client "+ id + " " +"connected to chat");
+                    break;
+                case TYPE_BROADCAST_DISCONNECT:
+                    aClient.out.println("Client "+ id + " " +"disconnected from chat");
+                    break;
             }
         }
     }
@@ -185,13 +191,19 @@ public class ConnectionHandler implements Runnable {
         }
     }
 
-    
-    /** Runs the filter threadpool
-     * @param nThreads -- number of threads of the filter threadpool
+    /**
+     * Filter the messages received from the clients.
      */
-    public static void ThreadPoolRun (int nThreads){
-        ExecutorService executor = Executors.newFixedThreadPool(nThreads);
-            executor.execute(new FilterMessage(filterWords, message));
+    private void handlerFilterMessages()
+    {
+        MessageFilter filter = new MessageFilter(numberOfWorkers, messageQueue, filteredQueue, filterWords);
+        filter.start();
+
+        while (!filteredQueue.isEmpty()) {
+            String messageFiltered = filteredQueue.poll();
+            Broadcast(messageFiltered,id,TYPE_BROADCAST_MESSAGE);
+        }
     }
+
 }
 
