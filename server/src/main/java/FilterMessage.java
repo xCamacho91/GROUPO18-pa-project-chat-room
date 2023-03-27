@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class FilterMessage extends Thread {
+public class FilterMessage implements Runnable {
     /**
      * list of profanity words
      */
@@ -9,6 +9,8 @@ public class FilterMessage extends Thread {
      * unfiltered message
      */
     private String message;
+    
+    
 
     /**
      * @param message - unfilterd message
@@ -24,9 +26,19 @@ public class FilterMessage extends Thread {
      */
     public String filter (){
         for (String word : filterWords) {
+            message = message.replace(" " + word + " ", "****");
+            message = message.replace( word + " ", "****");
+            message = message.replace( " " + word, "****");
             message = message.replace(word, "****");
         }
         return message;
+    }
+
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + "Processing message: " + message);
+        filter();
+        System.out.println(Thread.currentThread().getName() + "Message Processed " + message);
     }
 
 }

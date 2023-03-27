@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class ConnectionHandler implements Runnable {
@@ -35,6 +37,7 @@ public class ConnectionHandler implements Runnable {
      */
     private static String message;
 
+    private final ExecutorService executor;
     /**
      * list of profanity words
      */
@@ -121,11 +124,10 @@ public class ConnectionHandler implements Runnable {
                         numberOfConcurrentRequests.release();
                     } else {
                         message = request.substring(firstSpace+0);
-                        FilterMessage filterMessage = new FilterMessage(filterWords, message); // TODO tocar isto por uma thread pool
-                        message = filterMessage.filter();
-
-                        Broadcast(message, id, TYPE_BROADCAST_MESSAGE);
-
+                        
+                        ThreadPoolRun(2); 
+                            
+                        Broadcast(message);
                     }
                 } else {
                     out.println("...");
@@ -180,6 +182,15 @@ public class ConnectionHandler implements Runnable {
         }catch (IOException e){
 
         }
+    }
+
+    
+    /** Runs the filter threadpool
+     * @param nThreads -- number of threads of the filter threadpool
+     */
+    public static void ThreadPoolRun (int nThreads){
+        ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+            executor.execute(new FilterMessage(filterWords, message));
     }
 }
 
