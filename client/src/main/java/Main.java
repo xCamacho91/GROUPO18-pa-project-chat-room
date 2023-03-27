@@ -9,21 +9,36 @@ public class Main {
      * The path of the file to save the requests' information to.
      */
     private final static String serverLogFileName = "server/server.log";
+    /**
+     * The IP of the server.
+     */
     private final static String IP = "127.0.0.1";
+    /**
+     * The port of the server.
+     */
     private final static int PORT = 8080;
+    /**
+     * The type of message received from the client.
+     */
     private final static String MESSAGE = "MESSAGE";
+    /**
+     * The type of message received from the client.
+     */
     private final static String DISCONNECT = "DISCONNECT";
+    /**
+     * The type of message received from the client.
+     */
     private final static String CONNECT = "CONNECT";
+    /**
+     * The type of message received from the client.
+     */
     private final static String WAITING = "WAITING";
+    /**
+     * The lock to write to the file.
+     */
     private final static ReentrantLock lockWriteFile = new ReentrantLock();
-    public static void main ( String[] args ) throws IOException, InterruptedException {
 
-        //System.out.println("Enter the IP address:");
-        //BufferedReader keyboardIP = new BufferedReader(new InputStreamReader(System.in));
-        //IP = keyboardIP.readLine();
-        //System.out.println("Enter the port:");
-        //BufferedReader keyboardPORT = new BufferedReader(new InputStreamReader(System.in));
-        //PORT = Integer.parseInt(keyboardPORT.readLine());
+    public static void main ( String[] args ) throws IOException {
 
         Socket socket = new Socket(IP,PORT);
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -42,11 +57,9 @@ public class Main {
             LogClient logClient = new LogClient(timestamp, WAITING, id, "", lockWriteFile, serverLogFileName);
             logClient.start();
         }
-
         ClientThread servercon = new ClientThread (socket, lockWriteFile);
         BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
 
         new Thread(servercon).start();
 
